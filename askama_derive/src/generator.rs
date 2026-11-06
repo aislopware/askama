@@ -163,7 +163,10 @@ impl<'a, 'h> Generator<'a, 'h> {
     fn rel_path<'p>(&mut self, path: &'p Path) -> Cow<'p, Path> {
         self.caller_dir()
             .and_then(|caller_dir| {
-                diff_paths(path, caller_dir, std::env::var("CARGO_MANIFEST_DIR").ok())
+                let manifest_dir = std::env::var_os("CARGO_MANIFEST_DIR")
+                    .map(|dir| Path::new(&dir).canonicalize().unwrap_or_else(|_| dir.into()))
+                    .and_then(|dir| dir.into_os_string().into_string().ok());
+                diff_paths(path, caller_dir, manifest_dir)
             })
             .map_or(Cow::Borrowed(path), Cow::Owned)
     }
@@ -183,7 +186,11 @@ impl<'a, 'h> Generator<'a, 'h> {
                 local_file = Path::new(".").join(local_file);
             }
 
-            self.caller_dir = CallerDir::Valid(clean_path(&local_file));
+            // Template and config paths are canonical (symlinks resolved), so the caller's
+            // directory must be too: a `..` walked from a symlinked directory (a symlinked
+            // `~/.cargo/registry`, say) climbs the real tree, not the one the path was diffed in.
+            let caller_dir = local_file.canonicalize().unwrap_or_else(|_| clean_path(&local_file));
+            self.caller_dir = CallerDir::Valid(caller_dir);
             match &self.caller_dir {
                 CallerDir::Valid(caller_dir) => Some(caller_dir.as_path()),
                 _ => None, // unreachable
