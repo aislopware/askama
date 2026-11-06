@@ -1,5 +1,10 @@
 # askama
 
+> [!NOTE]
+> **aislopware/askama** carries one fix on top of [askama-rs/askama](https://github.com/askama-rs/askama): the derive
+> canonicalizes the caller directory before diffing template paths, so `uniffi_bindgen` builds under a symlinked
+> `~/.cargo/registry`. [onicode](https://github.com/aislopware/onicode) patches askama to it until upstream has the fix.
+
 [![Crates.io](https://img.shields.io/crates/v/askama?logo=rust&style=flat-square&logoColor=white "Crates.io")](https://crates.io/crates/askama)
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/askama-rs/askama/rust.yml?branch=main&logo=github&style=flat-square&logoColor=white "GitHub Workflow Status")](https://github.com/askama-rs/askama/actions/workflows/rust.yml)
 [![Book](https://img.shields.io/readthedocs/askama?label=book&logo=readthedocs&style=flat-square&logoColor=white "Book")](https://askama.rs/)
